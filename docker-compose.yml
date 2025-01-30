@@ -74,6 +74,19 @@ services:
       timeout: 5s
       retries: 5
 
+  nginx:
+    image: nginx:latest
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - authentication
+      - notification
+      - doctor
+
 
 volumes:
   postgres_data:
