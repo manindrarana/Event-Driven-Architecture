@@ -1,3 +1,80 @@
 version: '3.8'
 
+services:
+  authentication:
+    build:
+      context: ./authentication
+      dockerfile: Dockerfile
+    env_file: ./authentication/.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=authentication_project.settings
+    volumes:
+      - ./authentication:/app
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres
+    command: [
+      "sh",
+      "-c",
+      "wait-for-it.sh postgres:5432 -t 120 -- python3 manage.py migrate --noinput && python3 manage.py runserver 0.0.0.0:8001"
+    ]
+
+  notification:
+    build:
+      context: ./notification
+      dockerfile: Dockerfile
+    env_file: ./notification/.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=notification_project.settings
+    volumes:
+      - ./notification:/app
+    ports:
+      - "8002:8002"
+    depends_on:
+      - postgres
+      - authentication
+    command: [
+      "sh",
+      "-c",
+      "wait-for-it.sh postgres:5432 -t 120 -- python3 manage.py runserver 0.0.0.0:8002"
+    ]
+
+  doctor:
+    build:
+      context: ./doctor
+      dockerfile: Dockerfile
+    env_file: ./doctor/.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=doctor_project.settings
+    volumes:
+      - ./doctor:/app
+    ports:
+      - "8003:8003"
+    depends_on:
+      - postgres
+      - authentication
+    command: [
+      "sh",
+      "-c",
+      "wait-for-it.sh postgres:5432 -t 120 -- python3 manage.py runserver 0.0.0.0:8003"
+    ]
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: shared_db
+      POSTGRES_USER: shared_user
+      POSTGRES_PASSWORD: shared_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+volumes:
+  postgres_data:
 
