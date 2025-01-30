@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     env_file: ./authentication/.env
     environment:
-      - DJANGO_SETTINGS_MODULE=authentication_project.settings
+      - DJANGO_SETTINGS_MODULE=authentication.settings
     volumes:
       - ./authentication:/app
     ports:
@@ -26,7 +26,7 @@ services:
       dockerfile: Dockerfile
     env_file: ./notification/.env
     environment:
-      - DJANGO_SETTINGS_MODULE=notification_project.settings
+      - DJANGO_SETTINGS_MODULE=notification.settings
     volumes:
       - ./notification:/app
     ports:
@@ -46,7 +46,7 @@ services:
       dockerfile: Dockerfile
     env_file: ./doctor/.env
     environment:
-      - DJANGO_SETTINGS_MODULE=doctor_project.settings
+      - DJANGO_SETTINGS_MODULE=doctor.settings
     volumes:
       - ./doctor:/app
     ports:
