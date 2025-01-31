@@ -26,6 +26,9 @@ def signup(request):
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
-        user = User.objects.get(username=request.data.get('username'))
-        response.data['role'] = user.role
+        try:
+            user = User.objects.get(username=request.data.get('username'))
+            response.data['role'] = user.role
+        except User.DoesNotExist:
+            return Response({'detail': 'No active account found with the given credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return response
