@@ -60,12 +60,33 @@ services:
       "wait-for-it.sh postgres:5432 -t 120 -- python3 manage.py runserver 0.0.0.0:8003"
     ]
 
+  patient:
+    build:
+      context: ./patient
+      dockerfile: Dockerfile
+    env_file: ./patient/.env
+    environment:
+      - DJANGO_SETTINGS_MODULE=patient.settings
+    volumes:
+      - ./patient:/app
+    ports:
+      - "8004:8004"
+    depends_on:
+      - postgres
+      - authentication
+    command: [
+      "sh",
+      "-c",
+      "wait-for-it.sh postgres:5432 -t 120 -- python3 manage.py runserver 0.0.0.0:8004"
+    ]
+
   postgres:
     image: postgres:13
+    env_file: .env
     environment:
-      POSTGRES_DB: shared_db
-      POSTGRES_USER: shared_user
-      POSTGRES_PASSWORD: shared_password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -86,6 +107,7 @@ services:
       - authentication
       - notification
       - doctor
+      - patient
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -96,7 +118,5 @@ services:
     env_file:
       - .env
 
-
 volumes:
   postgres_data:
-
