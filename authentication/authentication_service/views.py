@@ -4,6 +4,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+import pika
+import json
 
 User = get_user_model()
 
@@ -12,12 +14,22 @@ def signup(request):
     username = request.data.get('username')
     password = request.data.get('password')
     role = request.data.get('role')
-    if username is None or password is None or role is None:
-        return Response({'error': 'Please provide username, password, and role'}, status=status.HTTP_400_BAD_REQUEST)
+    email = request.data.get('email')
+    if username is None or password is None or role is None or email is None:
+        return Response({'error': 'Please provide username, password, role, and email'}, status=status.HTTP_400_BAD_REQUEST)
     if User.objects.filter(username=username).exists():
         return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
-    user = User.objects.create_user(username=username, password=password, role=role)
+    user = User.objects.create_user(username=username, password=password, role=role, email=email)
     refresh = RefreshToken.for_user(user)
+
+    # message to RabbitMQ
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+    channel = connection.channel()
+    channel.queue_declare(queue='welcome_email')
+    message = json.dumps({'email': email, 'user_id': user.id})
+    channel.basic_publish(exchange='', routing_key='welcome_email', body=message)
+    connection.close()
+
     return Response({
         'refresh': str(refresh),
         'access': str(refresh.access_token),
