@@ -6,5 +6,10 @@ In this project we will work on with django, python, docker , rabbitmq as broker
 
 1 first create the django admin project and startapp for its each of the micorservices
 
-
 2 Then create the .env later on will be added to .gitignore, docker-compose and also for the separate docker compose for production
+
+3 create the separate dockerfile, env , requirements for each microservices
+
+4 added the rabbitmq as broker and uses the creds from env 
+
+5 updating all envs, dockerfile, requirements , settings, views, urls 
