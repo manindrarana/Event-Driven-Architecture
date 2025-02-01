@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 import dj_database_url
 from datetime import timedelta
+import sys
 
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 
@@ -27,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'nginx', '0.0.0.0']
 
@@ -148,3 +149,15 @@ SIMPLE_JWT = {
 }
 
 AUTH_USER_MODEL = 'authentication_service.CustomUser'
+
+# Email configuration for testing
+if 'test' in sys.argv:
+    EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+else:
+    # Email configuration for development using Gmail SMTP
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Your Gmail email address
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Your Gmail email password
