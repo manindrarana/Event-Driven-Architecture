@@ -16,6 +16,8 @@ RUN wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for
 
 COPY . /app
 
+ENV PYTHONPATH=/app
+
 EXPOSE 8002
 
 CMD ["python3", "manage.py", "runserver", "0.0.0.0:8002"]

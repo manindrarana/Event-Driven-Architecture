@@ -1,0 +1,26 @@
+* first one would be services running beofre the database even started so we use the wait for it bash script from github wait for 120s and also had 
+healthcheck 
+* second would be django module settings path related problem 
+* another problem of migrations was deleted to sure cascade drop all the tables and do the migrations again
+using these commands below 
+docker-compose exec postgres bash
+psql -U shared_user -d shared_db
+
+DROP TABLE IF EXISTS django_content_type CASCADE;
+DROP TABLE IF EXISTS auth_permission CASCADE;
+DROP TABLE IF EXISTS auth_group CASCADE;
+DROP TABLE IF EXISTS auth_group_permissions CASCADE;
+DROP TABLE IF EXISTS auth_user_groups CASCADE;
+DROP TABLE IF EXISTS auth_user_user_permissions CASCADE;
+DROP TABLE IF EXISTS django_admin_log CASCADE;
+DROP TABLE IF EXISTS django_migrations CASCADE;
+DROP TABLE IF EXISTS django_session CASCADE;
+DROP TABLE IF EXISTS authentication_service_customuser CASCADE;
+DROP TABLE IF EXISTS authentication_service_customuser_groups CASCADE;
+DROP TABLE IF EXISTS authentication_service_customuser_user_permissions CASCADE;
+DROP TABLE IF EXISTS token_blacklist_blacklistedtoken CASCADE;
+DROP TABLE IF EXISTS token_blacklist_outstandingtoken CASCADE;
+
+
+* another would be debug = true and false still if we false the nginx and other localhost should be properly configed
+* another one would be consumer py before accesing the models should ensure the django process is loaded first and then access the mdoels 

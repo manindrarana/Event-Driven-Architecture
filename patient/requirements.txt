@@ -5,3 +5,4 @@ djangorestframework
 dj-database-url
 djangorestframework-simplejwt
 pika
+python-dotenv

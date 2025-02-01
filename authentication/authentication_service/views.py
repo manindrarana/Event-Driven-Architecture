@@ -1,11 +1,16 @@
+import pika
+import json
+import os
+from dotenv import load_dotenv
+from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-import pika
-import json
+
+load_dotenv(dotenv_path='/app/.env')
 
 User = get_user_model()
 
@@ -23,7 +28,14 @@ def signup(request):
     refresh = RefreshToken.for_user(user)
 
     # message to RabbitMQ
-    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+    rabbitmq_host = os.getenv('RABBITMQ_HOST', 'rabbitmq')
+    rabbitmq_user = os.getenv('RABBITMQ_DEFAULT_USER', 'rabbitmq')
+    rabbitmq_pass = os.getenv('RABBITMQ_DEFAULT_PASS', 'password')
+
+    credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_pass)
+    parameters = pika.ConnectionParameters(host=rabbitmq_host, credentials=credentials)
+
+    connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
     channel.queue_declare(queue='welcome_email')
     message = json.dumps({'email': email, 'user_id': user.id})
