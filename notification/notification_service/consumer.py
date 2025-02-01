@@ -2,9 +2,15 @@ import pika
 import json
 import os
 from dotenv import load_dotenv
-#first we do this to ensure the django process are loaded first before accessing the models
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+
+# Load environment variables from .env file
 load_dotenv(dotenv_path='/app/.env')
 
+# Set up Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'notification.settings')
 import django
 django.setup()
@@ -25,8 +31,9 @@ def send_welcome_email(user_id):
             [email],
             fail_silently=False,
         )
+        logging.info(f"Sent welcome email to {email}")
     except User.DoesNotExist:
-        print(f"User with id {user_id} does not exist")
+        logging.error(f"User with id {user_id} does not exist")
 
 def callback(ch, method, properties, body):
     data = json.loads(body)
@@ -40,8 +47,9 @@ def callback(ch, method, properties, body):
         })
         if serializer.is_valid():
             serializer.save()
+            logging.info(f"Saved notification for user_id {user_id}")
         else:
-            print(serializer.errors)
+            logging.error(serializer.errors)
 
 # RabbitMQ connection parameters
 rabbitmq_host = os.getenv('RABBITMQ_HOST', 'rabbitmq')
@@ -58,5 +66,5 @@ channel.queue_declare(queue='welcome_email')
 
 channel.basic_consume(queue='welcome_email', on_message_callback=callback, auto_ack=True)
 
-print('Waiting for messages. To exit press CTRL+C')
+logging.info('Waiting for messages. To exit press CTRL+C')
 channel.start_consuming()

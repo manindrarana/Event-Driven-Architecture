@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+import logging
 
 load_dotenv(dotenv_path='/app/.env')
 
@@ -40,6 +41,7 @@ def signup(request):
     channel.queue_declare(queue='welcome_email')
     message = json.dumps({'email': email, 'user_id': user.id})
     channel.basic_publish(exchange='', routing_key='welcome_email', body=message)
+    logging.info(f"Published message to RabbitMQ: {message}")
     connection.close()
 
     return Response({
