@@ -1,5 +1,5 @@
 # Event-Driven-Architecture
-
+# are all added to todolist issue in github
 In this project we will work on with django, python, docker , rabbitmq as broker and ci/cd pipeline for creating a system working with microservices 
 
 # steps to start the project 
@@ -13,3 +13,4 @@ In this project we will work on with django, python, docker , rabbitmq as broker
 4 added the rabbitmq as broker and uses the creds from env 
 
 5 updating all envs, dockerfile, requirements , settings, views, urls 
+
